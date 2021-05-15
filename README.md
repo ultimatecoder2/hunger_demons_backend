@@ -1,4 +1,4 @@
-# feed_needy_backend
+# Hunger Demons Backend
 It is the backend repository for the feed needy application.
 
 <br/>

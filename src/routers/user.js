@@ -5,6 +5,8 @@ const auth = require('../middleware/auth');
 const multer = require('multer');
 const sharp = require('sharp');
 const upload = multer()
+const jwt = require('jsonwebtoken');
+const {sendPasswordResetEmail} = require('../emails/password_reset');
 
 //Signup
 router.post('/users',async(req,res)=>{
@@ -60,6 +62,51 @@ router.post('/users/logoutAll',auth, async(req,res) => {
 
 });
 
+//Forgot Password
+router.post('/users/forgot_password', async(req, res)=>{
+    try{
+        const email = req.body.email;
+        const user = await User.findOne({email: email})
+        if(!user){
+            res.status(401).send({message:"No user with this email id exists"})
+            return
+        }
+        
+        const secret = process.env.JWT_SECRET_TOKEN_EMAIL + user.password
+        const payload = {email: user.email, id: user._id}
+        const token = jwt.sign(payload, secret, {expiresIn:'15m'})
+        const link = `${process.env.FRONTEND_URL}/reset_password/${user.id}/${token}`
+        sendPasswordResetEmail('deepu.jindal2002@gmail.com', user.name, link);
+        res.send({message:"Password reset link has been sent on your email id. It's valid for 15 minutes only."})
+
+    }
+    catch(e){
+        console.log(e);
+        res.send({message:"Operation unsucessfull"})
+
+    }
+});
+
+router.post('/users/reset_password', async(req, res)=>{
+    const {userId, token, password} = req.body;
+    try{
+        const user = await User.findById(userId);
+        const secret = process.env.JWT_SECRET_TOKEN_EMAIL + user.password;
+        const payload = jwt.verify(token, secret);
+        user.password = password;
+        await user.save();
+        res.status(200).send({message:"Your password has been reset successfully"});
+    }
+    catch(e){
+        let error;
+        if(e.name==="TokenExpiredError"){
+            error = "Your password reset link has expired. Generate a new link to continue."
+        }else{
+            error="Invalid password reset link. Try generating a new one."
+        }
+        res.status(401).send(error)
+    }
+})
 
 //get user details
 router.get('/users/me', auth, async(req,res)=>{

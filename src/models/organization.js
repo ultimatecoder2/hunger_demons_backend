@@ -41,7 +41,7 @@ const organizationSchema = new mongoose.Schema({
             trim: true
         },
         city:{
-            type:String,
+            type:Object,
             trim: true
         },
         state:{

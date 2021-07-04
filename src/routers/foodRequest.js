@@ -47,7 +47,6 @@ router.get('/foodrequests/me', auth, async(req,res)=>{
             foodRequest = await FoodRequest.find({owner, requestType}).sort({"updatedAt":-1}).skip(Skip).limit(Limit);
             Count = await FoodRequest.find({owner, requestType}).countDocuments();
         }
-        // console.log(foodRequest);
         res.send({foodRequest, count:Count, Limit, Skip});
     }
     catch(e){
@@ -125,37 +124,15 @@ router.get('/foodrequest/:id', async(req,res)=>{
 
 //get food requests at a paticular location-- using query in url
 router.get('/foodrequests', auth, async(req,res)=>{
-    // console.log(req.query);
     const queries = req.query;
-    let {Limit, requestType, Skip, postalCode} = queries;
+    let {Limit, requestType, Skip} = queries;
     Limit = parseInt(Limit);
     Skip = parseInt(Skip);
-    if(Skip<0){
-        console.log(requestType);
-    }
-    const city = queries.city?queries.city:req.user.address[0].city
-    const state = queries.state?queries.state:req.user.address[0].state
-    const country = queries.country?queries.country:req.user.address[0].country 
-    let filters = {city,state,country}
-    let specialFilters = {country}
-    if(postalCode){
-        specialFilters['postalCode'] = postalCode
-    }
-    if(queries.city){
-        specialFilters['city'] = city
-    }
+    const city = queries.city?JSON.parse(queries.city):req.user.address[0].city
     try{
         let foodRequest, Count = 0;
-        if(postalCode||queries.city){
-            foodRequest = await FoodRequest.find({requestType, address:{$elemMatch:specialFilters}}).sort({"updatedAt":-1}).skip(Skip).limit(Limit);
-            Count = await FoodRequest.find({requestType, address:{$elemMatch:specialFilters}}).countDocuments();
-        }else{
-            foodRequest = await FoodRequest.find({requestType, address:{$elemMatch:filters}}).sort({"updatedAt":-1}).skip(Skip).limit(Limit);
-            Count = await FoodRequest.find({requestType, address:{$elemMatch:filters}}).countDocuments();
-        
-        }
-        // console.log(foodRequest);
-        res.send({foodRequest, count:Count, Limit, Skip});
+        foodRequest = await FoodRequest.find({requestType, address:{$elemMatch:{city}}}).sort({"updatedAt":-1}).skip(Skip).limit(Limit);
+        res.send({foodRequest, Limit, Skip});
     }
     catch(e){
         console.log(e);

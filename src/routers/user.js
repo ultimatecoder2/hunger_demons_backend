@@ -76,7 +76,7 @@ router.post('/users/forgot_password', async(req, res)=>{
         const payload = {email: user.email, id: user._id}
         const token = jwt.sign(payload, secret, {expiresIn:'15m'})
         const link = `${process.env.FRONTEND_URL}/reset_password/${user.id}/${token}`
-        sendPasswordResetEmail('deepu.jindal2002@gmail.com', user.name, link);
+        sendPasswordResetEmail(user.email, user.name, link);
         res.send({message:"Password reset link has been sent on your email id. It's valid for 15 minutes only."})
 
     }

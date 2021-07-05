@@ -24,32 +24,15 @@ router.get('/organization',auth, async(req,res)=>{
     let {Limit, Skip, postalCode} = queries;
     Limit = parseInt(Limit);
     Skip = parseInt(Skip);
-    if(Skip<0){
-        console.log("Org")
-    }
+    const city = queries.city?JSON.parse(queries.city):req.user.address[0].city
 
-    const city = queries.city?queries.city:req.user.address[0].city;
-    const state = queries.state?queries.state:req.user.address[0].state
-    const country = queries.country?queries.country:req.user.address[0].country
-    
-    const filters = {city,state,country}
-    let specialFilters = {country}
-    if(postalCode){
-        specialFilters['postalCode'] = postalCode
-    }
-    if(queries.city){
-        specialFilters['city'] = city
-    }
     let organization, Count;
     try{
-        if(postalCode||queries.city){
-            organization = await Organization.find({address:{$elemMatch:specialFilters}}).skip(Skip).limit(Limit);
-            Count = await Organization.find({address:{$elemMatch:specialFilters}}).countDocuments();
-        }else{
-            organization = await Organization.find({address:{$elemMatch:filters}}).skip(Skip).limit(Limit);
-            Count = await Organization.find({address:{$elemMatch:filters}}).countDocuments();
-        }
-        res.send({organization, count:Count, Limit, Skip});
+        
+            organization = await Organization.find({address:{$elemMatch:{city}}}).skip(Skip).limit(Limit);
+            // Count = await Organization.find({address:{$elemMatch:filters}}).countDocuments();
+        
+        res.send({organization, Limit, Skip});
     }
     catch(e){
         console.log(e)

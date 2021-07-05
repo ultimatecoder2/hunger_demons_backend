@@ -28,22 +28,4 @@ app.listen(port,() =>{
 });
 
 
-// app.use((req,res,next)=>{
-//   if(req.method==='GET'){
-//     res.send('GET requests are diabled');
-//   }
-//   else{
-//     next();
-//   }
-//   // console.log(req.method,req.path);
-  
-// });
-
-// app.use((req,res,next)=>{
-//     res.status(503).send('Site is under Maintenance. We will be avaliable soon.');
-  
-//   // console.log(req.method,req.path);
-  
-// });
-
 

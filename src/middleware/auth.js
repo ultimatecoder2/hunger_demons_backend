@@ -6,19 +6,16 @@ const auth = async (req,res,next)=>{
     try{
         
         const token = req.header('Authorization').replace('Bearer ','');
-        const decoded = jwt.verify(token,'thisisthesecrettoken');
+        const decoded = jwt.verify(token,process.env.JWT_SECRET_TOKEN_PASSWORD);
         const user = await User.findOne({_id:decoded._id,'tokens.token':token})
-        // console.log("user",user);// unable to find user
         if(!user){
             throw new Error()
         }
         req.token = token;
         req.user = user;
-        // console.log("Authentication successfull. Moving on...");
         next()
     }
     catch(e){
-        // console.log("Failed")
         res.status(401).send({error:'Please authenticate'});
     }     
 }

@@ -75,7 +75,7 @@ userSchema.virtual('foodRequests',{
 //Generating jwt authentication tokens
 userSchema.methods.generateAuthToken = async function (){
     const user = this;
-    const token = jwt.sign({_id:user._id.toString()},'thisisthesecrettoken');
+    const token = jwt.sign({_id:user._id.toString()},process.env.JWT_SECRET_TOKEN_PASSWORD);
 
     //Saving tokens in user so as he can login over multiple devices and we can keep a track of that.
     user.tokens = user.tokens.concat({token});

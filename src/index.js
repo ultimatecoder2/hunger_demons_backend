@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors')
-require('./db/mongoose');
 require("dotenv").config();
+require('./db/mongoose');
+
 
 const emails = require('./emails/password_reset');
 const User = require('./models/user');
